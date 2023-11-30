@@ -4,31 +4,35 @@
 
 using namespace std;
 
-int main(int argc, char const *argv[]){
+int main(){
 
+    int opcao,orientado,ponderado,peso;
+    cout << "Digite o tipo de entrada:" << endl;
+    cout << "1-Grafos simples, não-valorados e não-orientados" << endl;
+    cout << "2-Digrafos simples, não-valorados" << endl;
+    cout << "3-Digrafos simples, valorados" << endl;
+    cin >> opcao;
+    if (opcao == 1){
+        orientado = 0;
+        ponderado = 0;
+    }else if (opcao == 2){
+        orientado = 1;
+        ponderado = 0;
+    }else if (opcao == 3){
+        orientado = 1;
+        ponderado = 1;
+    }else{
+        cout << "Favor digitar uma opcao válida" << endl;
+    }
     // Abrindo arquivo de entrada
     ifstream arquivo;
-    arquivo.open(argv[1], ios::in);
+    string nome_arquivo;
+    cout << "Digite o nome do arquivo" << endl;
+    cin >> nome_arquivo;
+    arquivo.open(nome_arquivo, ios::in);
     if(arquivo.is_open()){
-        int ordem,opcao,orientado,ponderado,peso;;
+        int ordem;
         arquivo >> ordem;
-        cout << "Digite o tipo de entrada:" << endl;
-        cout << "1-Grafos simples, não-valorados e não-orientados" << endl;
-        cout << "2-Digrafos simples, não-valorados" << endl;
-        cout << "3-Digrafos simples, valorados" << endl;
-        cin >> opcao;
-        if(opcao == 1){
-            orientado = 0;
-            ponderado = 0;
-        }else if (opcao == 2){
-            orientado = 1;
-            ponderado = 0;
-        }else if (opcao == 3){
-            orientado = 1;
-            ponderado = 1;
-        }else{
-            cout << "Favor digitar uma opcao válida" << endl;
-        }
         Grafo grafo1(ordem,0,orientado,ponderado);
         for(int i = 0; i < ordem; i++){
             for(int j = 0; j < ordem; j++){
