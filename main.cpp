@@ -11,6 +11,7 @@ int main(){
     cout << "1-Grafos simples, não-valorados e não-orientados" << endl;
     cout << "2-Digrafos simples, não-valorados" << endl;
     cout << "3-Digrafos simples, valorados" << endl;
+    cout << "4-Grafos simples, valorados" << endl;
     cin >> opcao;
     if (opcao == 1){
         orientado = 0;
@@ -20,6 +21,9 @@ int main(){
         ponderado = 0;
     }else if (opcao == 3){
         orientado = 1;
+        ponderado = 1;
+    }else if(opcao == 4){
+        orientado = 0;
         ponderado = 1;
     }else{
         cout << "Favor digitar uma opcao válida" << endl;
@@ -42,6 +46,10 @@ int main(){
         }
         grafo1.imprimirvertices();
         grafo1.imprimirmatriz();
+        //grafo1.busca_largura(0);
+        cout << "Busca profundidade: " << endl;
+        grafo1.busca_profundidade(0);
+        grafo1.prim(6);
     }
     else{
         cout << "erro leitura" << endl;
