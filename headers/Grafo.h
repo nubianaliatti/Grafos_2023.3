@@ -8,10 +8,16 @@ typedef struct { //posicoes da matriz que simbolizam arestas -> facilitar buscas
     int x;
     int y;
 } Posicoes; 
-typedef struct { //posicoes da matriz que simbolizam arestas -> facilitar buscas
+typedef struct { 
     int id;
     int visitado;
+    int grau_entrada;
+    int grau_saida;
 } Vertice; 
+typedef struct { //arvore de steiner
+    int id;
+    int terminal;
+} Terminal; 
 
 class Grafo{
     private:
@@ -42,5 +48,7 @@ class Grafo{
     void prim(int vertice_inicial);
     void dijkstra(int vertice_inicial, int vertice_final);
     void arvore_steiner ();
+    void ordenacao_topologica(int vertice_inicial);
+
 
 };

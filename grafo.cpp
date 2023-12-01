@@ -61,8 +61,11 @@ using namespace std;
             Vertice novo;
             novo.id = item;
             novo.visitado = 0;
+            novo.grau_entrada = 0;
+            novo.grau_saida = 0;
             vertices[numvertices] = novo;
             numvertices++;
+
         }
     }
 
@@ -76,23 +79,35 @@ using namespace std;
             if (this->orientado == 0 && this->ponderado == 0 && peso == 1){
                 matrizadjacencias[linha][coluna] = peso;
                 matrizadjacencias[coluna][linha] = peso;
+                vertices[linha].grau_entrada++;
+                vertices[linha].grau_saida++;
+                vertices[coluna].grau_entrada++;
+                vertices[coluna].grau_saida++;
                 posicoes_arestas.push_back(p);
                 Posicoes p1 = {coluna, linha}; // aresta de volta
                 posicoes_arestas.push_back(p1);
 
             }else if (this->orientado == 1 && this->ponderado == 0 && peso == 1){
                 matrizadjacencias[linha][coluna] = peso;
+                vertices[linha].grau_saida++;
+                vertices[coluna].grau_entrada++;
                 posicoes_arestas.push_back(p);
 
             }else if (this->orientado == 1 && this->ponderado == 1 && peso != 999){
                 matrizadjacencias[linha][coluna] = peso;
                 posicoes_arestas.push_back(p);
+                vertices[linha].grau_saida++;
+                vertices[coluna].grau_entrada++;
             }else if (this->orientado == 0 && this->ponderado == 1){
                 matrizadjacencias[linha][coluna] = peso;
                 matrizadjacencias[coluna][linha] = peso;
                 posicoes_arestas.push_back(p);
                 Posicoes p1 = {coluna, linha}; // aresta de volta
                 posicoes_arestas.push_back(p1);
+                vertices[linha].grau_entrada++;
+                vertices[linha].grau_saida++;
+                vertices[coluna].grau_entrada++;
+                vertices[coluna].grau_saida++;
         }
     }
     }
@@ -176,16 +191,44 @@ using namespace std;
     }
     void Grafo::arvore_steiner ()
     {
-        int qtd;
+        /*int qtd;
         cout << "Digite quantos vertices terminais:";
         cin >> qtd;
-        vector<int> terminais;
-        int terminal;
+        vector<Terminal> terminais;
+        Terminal terminal;
         for(int i = 0; i < qtd; i ++){
             cout << "Digite o " << i+1 << "vertice terminal:";
-            cin >> terminal;
+            cin >> terminal.id;
+            terminal.terminal = 1;
             terminais.push_back(terminal);
         }
+        setarVisitados();
+        vector<int> custo;
+        int visitados = 0;
+        int prox = 0;
+        custo.clear();
+        int vertice_atual = vertice_inicial;
+        for (int i = 0; i < maxvertices; i++){
+            custo.push_back(INFINITO);
+        }
+        custo[vertice_inicial] = 0;
+        do{
+            for(int i = 0; i < maxvertices; i ++){
+                if(matrizadjacencias[vertice_atual][i]!=0 && custo[i]>matrizadjacencias[vertice_atual][i]+prox){
+                    custo[i] = matrizadjacencias[vertice_atual][i]+prox;
+                }
+            } vertices[vertice_atual].visitado = 1;
+            visitados++;
+            prox = INFINITO;
+            for(int i = 0; i < custo.size(); i ++){
+                if(custo[i]<prox && vertices[i].visitado == 0){
+                    prox = custo[i];
+                    vertice_atual =i;
+                }
+            }
+        }while(visitados < maxvertices);
+        cout << custo[vertice_final] << endl;
+        custo.clear();*/
     }
     void Grafo::prim(int vertice_inicial)
     {
@@ -203,7 +246,6 @@ using namespace std;
         custo[vertice_inicial] = 0;
         do{
             prox = INFINITO;
-            cout << vertice_atual << ": ";
             vertices[vertice_atual].visitado = 1;
             visitados++;
             for(int i = 0; i < maxvertices; i ++){
@@ -226,4 +268,58 @@ using namespace std;
     {
         for(int i = 0; i < maxvertices; i++)
         vertices[i].visitado = 0;
+    }
+    void Grafo::dijkstra(int vertice_inicial, int vertice_final)
+    {
+        cout << "Dijktra: " << endl;
+        setarVisitados();
+        vector<int> custo;
+        int visitados = 0;
+        int prox = 0;
+        custo.clear();
+        int vertice_atual = vertice_inicial;
+        for (int i = 0; i < maxvertices; i++){
+            custo.push_back(INFINITO);
+        }
+        custo[vertice_inicial] = 0;
+        do{
+            for(int i = 0; i < maxvertices; i ++){
+                if(matrizadjacencias[vertice_atual][i]!=0 && custo[i]>matrizadjacencias[vertice_atual][i]+prox){
+                    custo[i] = matrizadjacencias[vertice_atual][i]+prox;
+                }
+            } vertices[vertice_atual].visitado = 1;
+            visitados++;
+            prox = INFINITO;
+            for(int i = 0; i < custo.size(); i ++){
+                if(custo[i]<prox && vertices[i].visitado == 0){
+                    prox = custo[i];
+                    vertice_atual =i;
+                }
+            }
+        }while(visitados < maxvertices);
+        cout << custo[vertice_final] << endl;
+        custo.clear();
+    }
+    void Grafo::ordenacao_topologica(int vertice_inicial)
+    {
+        vector<int> ordenacao;
+        setarVisitados();
+        int j = 0;
+        do
+        {
+            for (int i = 0; i < maxvertices; i++)
+            {
+                if (vertices[i].grau_entrada == 0 && vertices[i].visitado == 0){
+                    ordenacao.push_back(vertices[i].id);
+                    vertices[i].visitado = 1;
+                }
+            }
+            cout << ordenacao[j] << " ";
+            for(int i = 0; i < maxvertices; i ++){
+                if(matrizadjacencias[ordenacao[j]][i]!=0 && vertices[i].visitado == 0 && vertices[i].grau_entrada>0){
+                    vertices[i].grau_entrada--;
+                }
+            }
+            j++;
+        } while(ordenacao.size() < maxvertices);
     }
