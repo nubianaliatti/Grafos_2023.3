@@ -4,16 +4,21 @@
 
 using namespace std;
 
-typedef struct { //posicoes da matriz que simbolizam arestas -> facilitar buscas
-    int x;
-    int y;
-} Posicoes; 
 typedef struct { 
     int id;
     int visitado;
     int grau_entrada;
     int grau_saida;
 } Vertice;
+
+typedef struct { 
+    int valor;
+    int linha;
+    int coluna;
+} Aresta;
+typedef struct { 
+    vector<Aresta> arestas;
+} Custo;
 class Grafo{
     private:
     int ordem;
@@ -31,7 +36,7 @@ class Grafo{
     void imprimirmatriz();
     void imprimirvertices();
     void busca_largura(int vertice_inicial);
-    vector<Posicoes> posicoes_arestas;
+    vector<Aresta> arestas;
     void busca_profundidade(int vertice_atual); 
     void prim(int vertice_inicial);
     void dijkstra(int vertice_inicial);

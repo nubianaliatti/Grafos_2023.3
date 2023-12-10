@@ -48,7 +48,7 @@ using namespace std;
 
     void Grafo::inserearesta(int linha, int coluna, int peso)
     {
-        Posicoes p = {linha, coluna};
+        Aresta a = {peso,linha, coluna};
 
         if (linha != coluna)
         {
@@ -62,9 +62,9 @@ using namespace std;
                     vertices[linha].grau_saida++;
                     vertices[coluna].grau_entrada++;
                     vertices[coluna].grau_saida++;
-                    posicoes_arestas.push_back(p);
-                    Posicoes p1 = {coluna, linha}; // aresta de volta
-                    posicoes_arestas.push_back(p1);
+                    arestas.push_back(a);
+                   Aresta a1 = {peso,coluna,linha}; // aresta de volta
+                    arestas.push_back(a1);
                 }
             }
             else if (this->orientado == 1)
@@ -74,7 +74,7 @@ using namespace std;
                 {
                     vertices[linha].grau_saida++;
                     vertices[coluna].grau_entrada++;
-                    posicoes_arestas.push_back(p);
+                    arestas.push_back(a);
                 }
             }
         }
@@ -90,8 +90,8 @@ using namespace std;
             cout << endl;
         }
         cout << "Arestas: " << endl;
-        for(int i = 0; i < posicoes_arestas.size(); i++){
-            cout << "{" << posicoes_arestas[i].x << posicoes_arestas[i].y << "}";
+        for(int i = 0; i < arestas.size(); i++){
+            cout << "{" << arestas[i].linha << arestas[i].coluna << "}";
         }
         cout << endl;
     }
@@ -184,35 +184,53 @@ using namespace std;
     void Grafo::dijkstra(int vertice_inicial) //da certo para orientado e nao orientado
     {
         setarVisitados();
+        vector<Custo> aux; //imprimir arestas;
         cout << "Dijktra: " << endl;
         setarVisitados();
-        vector<int> custo;
+        vector<Aresta> custo;
+        Aresta prox = {0,0,0};
         int visitados = 0;
-        int prox = 0;
         custo.clear();
         int vertice_atual = vertice_inicial;
         for (int i = 0; i < ordem; i++){
-            custo.push_back(INFINITO);
+            Aresta c;
+            c.valor = INFINITO;            
+            custo.push_back(c);
+            Custo a;
+            aux.push_back(a);
         }
-        custo[vertice_inicial] = 0;
+        custo[vertice_inicial].valor = 0;
         do{
             for(int i = 0; i < ordem; i ++){
-                if(matrizadjacencias[vertice_atual][i]!= 999 && custo[i]>matrizadjacencias[vertice_atual][i]+prox && vertice_atual!=i){
-                    custo[i] = matrizadjacencias[vertice_atual][i]+prox;
+                if(matrizadjacencias[vertice_atual][i]!= 999 && custo[i].valor>matrizadjacencias[vertice_atual][i]+prox.valor && vertice_atual!=i){
+                    custo[i].valor = matrizadjacencias[vertice_atual][i]+prox.valor;
+                    custo[i].linha = vertice_atual;
+                    custo[i].coluna = i;
                 }
             } vertices[vertice_atual].visitado = 1;
-            cout << vertice_atual << " ";
             visitados++;
-            prox = INFINITO;
+            prox.valor = INFINITO;
             for(int i = 0; i < custo.size(); i ++){
-                if(custo[i]<prox && vertices[i].visitado == 0){
-                    prox = custo[i];
+                if(custo[i].valor<prox.valor && vertices[i].visitado == 0){
+                    prox.valor = custo[i].valor;
+                    prox.linha = custo[i].linha;
+                    prox.coluna = custo[i].coluna;
                     vertice_atual = i;
                 }
             }
+           if(prox.valor!=INFINITO){
+            for(int i = 0; i < aux[prox.linha].arestas.size(); i ++){
+                aux[prox.coluna].arestas.push_back(aux[prox.linha].arestas[i]);
+            }
+           aux[prox.coluna].arestas.push_back(prox);
+           cout << "{" << prox.linha << "-" << prox.coluna << "}";
+           }
         }while(visitados < ordem);
         for (int i = 0; i < ordem; i++){
-            cout << "Vertice " << i << ":" << custo[i] << endl;
+            cout << "Vertice " << i << ":" << custo[i].valor << " Arestas: ";
+            for(int j = 0; j < aux[i].arestas.size(); j++)
+            cout << "{" << aux[i].arestas[j].linha << "-" << aux[i].arestas[j].coluna << "}";
+            cout << endl;
         }
         custo.clear();
         setarVisitados();
