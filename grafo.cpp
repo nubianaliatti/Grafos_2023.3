@@ -48,7 +48,7 @@ using namespace std;
 
     void Grafo::inserearesta(int linha, int coluna, int peso)
     {
-        Aresta a = {peso,linha, coluna};
+        Aresta a = {peso,linha, coluna,0};
 
         if (linha != coluna)
         {
@@ -63,7 +63,7 @@ using namespace std;
                     vertices[coluna].grau_entrada++;
                     vertices[coluna].grau_saida++;
                     arestas.push_back(a);
-                   Aresta a1 = {peso,coluna,linha}; // aresta de volta
+                   Aresta a1 = {peso,coluna,linha,0}; // aresta de volta
                     arestas.push_back(a1);
                 }
             }
@@ -105,6 +105,7 @@ using namespace std;
     }
     void Grafo::busca_largura(int vertice_inicial)
     {
+        cout << endl << "Busca largura:" << endl;
         setarVisitados();
         vector<int> vertices_visitar;
         int vertice_atual = vertice_inicial;
@@ -136,43 +137,60 @@ using namespace std;
             }
         }
     }
+    void Grafo::setarArestas()
+    {
+        for (int i = 0; i < arestas.size();i++){
+            arestas[i].visitado = 0;
+        }
+    }
     void Grafo::prim(int vertice_inicial)
     {
         setarVisitados();
-        cout << "Prim: " << endl;
+        vector<Custo> aux; //imprimir arestas;
+        cout << "Dijktra: " << endl;
         setarVisitados();
-        vector<int> custo;
+        vector<Aresta> custo;
+        Aresta prox = {0,0,0};
         int visitados = 0;
-        int prox;
-        int custo_total = 0;
+        int total = 0;
         custo.clear();
         int vertice_atual = vertice_inicial;
         for (int i = 0; i < ordem; i++){
-            custo.push_back(INFINITO);
+            Aresta c;
+            c.valor = INFINITO;            
+            custo.push_back(c);
+            Custo a;
+            aux.push_back(a);
         }
-        custo[vertice_inicial] = 0;
+        custo[vertice_inicial].valor = 0;
         do{
-            prox = INFINITO;
-            vertices[vertice_atual].visitado = 1;
-            cout << "{" << vertice_atual << "-";
-            visitados++;
             for(int i = 0; i < ordem; i ++){
-                if(matrizadjacencias[vertice_atual][i]!=999 && custo[i]>matrizadjacencias[vertice_atual][i] && vertices[i].visitado == 0 && vertice_atual!=i){
-                    custo[i] = matrizadjacencias[vertice_atual][i];
+                if(matrizadjacencias[vertice_atual][i]!= 999 && custo[i].valor>matrizadjacencias[vertice_atual][i] && vertice_atual!=i){
+                    custo[i].valor = matrizadjacencias[vertice_atual][i];
+                    custo[i].linha = vertice_atual;
+                    custo[i].coluna = i;
+                }
+            } vertices[vertice_atual].visitado = 1;
+            visitados++;
+            prox.valor = INFINITO;
+            for(int i = 0; i < custo.size(); i ++){
+                if(custo[i].valor<prox.valor && vertices[i].visitado == 0){
+                    prox.valor = custo[i].valor;
+                    prox.linha = custo[i].linha;
+                    prox.coluna = custo[i].coluna;
+                    vertice_atual = i;
                 }
             }
-            for(int i = 0; i < custo.size(); i ++){
-                        if(custo[i]<prox && vertices[i].visitado == 0){
-                            prox = custo[i];
-                            vertice_atual = i;
-                        }
-                    }
-            if(prox!=INFINITO){
-                custo_total+=prox;
-                cout << vertice_atual << "}" << "Peso:" << prox << endl;
+           if(prox.valor!=INFINITO){
+            total+=prox.valor;
+            cout << "{" << prox.linha << " " << prox.coluna << "}" << "Peso: " << prox.valor << endl;
+            for(int i = 0; i < aux[prox.linha].arestas.size(); i ++){
+                aux[prox.coluna].arestas.push_back(aux[prox.linha].arestas[i]);
             }
-        }while(visitados != ordem);
-        cout << "Custo total arvore:" << custo_total << endl;
+           aux[prox.coluna].arestas.push_back(prox);
+           }
+        }while(visitados < ordem);
+        cout << "Total:" << total << endl;
         custo.clear();
         setarVisitados();
     }
@@ -223,7 +241,6 @@ using namespace std;
                 aux[prox.coluna].arestas.push_back(aux[prox.linha].arestas[i]);
             }
            aux[prox.coluna].arestas.push_back(prox);
-           cout << "{" << prox.linha << "-" << prox.coluna << "}";
            }
         }while(visitados < ordem);
         for (int i = 0; i < ordem; i++){
@@ -235,6 +252,62 @@ using namespace std;
         custo.clear();
         setarVisitados();
     }
+
+    Aresta *Grafo:: procura_aresta(int linha, int coluna)
+    {
+        for(int i = 0; i < arestas.size(); i++){
+            if(arestas[i].linha == linha && arestas[i].coluna == coluna)
+            return &arestas[i];
+        }
+        return nullptr;
+    }
+
+    int Grafo::ciclo_euleriano(int vertice_inicial)
+    {
+        //conferir se todos os vertices são pares
+        for(int i = 0; i < ordem; i ++){
+            if(vertices[i].grau_entrada % 2 != 0){
+                cout << "Grafo com grau par em algum vertice, nao e possivel ter um ciclo euleriano" << endl;
+                return -1;
+            }
+        }
+        cout << "Ciclo euleriano:" << endl;
+        setarArestas();
+        setarVisitados();
+        aux_ciclo_euleriano(vertice_inicial, vertice_inicial,0);
+        return 0;
+    }
+
+    void Grafo::aux_ciclo_euleriano(int vertice, int vertice_inicial,int num)
+    {
+        if(vertices[vertice_inicial].visitado == 0){
+        Aresta *aux;
+        //do{
+        int i;
+        for (i = 0; i < ordem; i++){
+            if (matrizadjacencias[vertice][i] != 999 && vertice != i && vertices[i].visitado == 0){
+                if ((vertices[vertice].grau_entrada >= 1 && vertices[i].grau_entrada > 1)|| (vertices[i].grau_entrada == 1 && i == vertice_inicial && vertices[vertice].grau_entrada == 1)){
+                aux = procura_aresta(vertice, i);
+                if(aux->visitado == 0)
+                break;
+            }
+        }
+        }
+            if (vertices[vertice].grau_entrada == 1)
+                vertices[vertice].visitado = 1;
+            aux->visitado = 1;
+            cout << aux->linha << "-" << aux->coluna << ":" << num << endl;
+            aux = procura_aresta(i, vertice);
+            aux->visitado = 1;
+            num++;
+            vertices[vertice].grau_entrada--;
+            vertices[i].grau_entrada--;
+            if(num < (arestas.size()/2))
+            aux_ciclo_euleriano(i, vertice_inicial,num);
+        }
+        //}while (vertice != 5);       
+    }
+
     void Grafo::ordenacao_topologica()//da segmentation fault quando o grafo tem ciclo
     {
         vector<int> ordenacao;
@@ -258,4 +331,5 @@ using namespace std;
             j++;
         } while(ordenacao.size() < ordem);
         setarVisitados();
+        ordenacao.clear();
     }

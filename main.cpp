@@ -39,12 +39,23 @@ int main(){
         }
         grafo1.imprimirvertices();
         grafo1.imprimirmatriz();
-        grafo1.busca_largura(0);
-        cout << "Busca profundidade: " << endl;
-        grafo1.busca_profundidade(0);
-        grafo1.dijkstra(6);
-        grafo1.prim(5);
-        //grafo1.ordenacao_topologica();
+        if(grafo1.orientado)
+        grafo1.ordenacao_topologica();
+        else{
+            int largura, profundidade, dijkstra;
+            cout << "Digite o vertice inicial para busca em largura:";
+            cin >> largura; 
+            grafo1.busca_largura(largura);
+            cout << endl << "Digite o vertice inicial para busca em profundidade:";
+            cin >> profundidade;
+            cout << endl << "Busca profundidade: " << endl;
+            grafo1.busca_profundidade(profundidade);
+            cout << endl << "Digite o vertice inicial para dijkstra:";
+            cin >> dijkstra;
+            grafo1.dijkstra(dijkstra);
+            grafo1.prim(0);
+            grafo1.ciclo_euleriano(0);
+        }
     }
     else{
         cout << "erro leitura" << endl;
